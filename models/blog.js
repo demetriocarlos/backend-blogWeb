@@ -40,13 +40,18 @@ const blogSchema = new mongoose.Schema({
     },
   ],
  
-  
+  user: {// Esto asegura que cada blog tenga un único usuario asociado,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  /*
      user:[
         {
             type: mongoose.Schema.Types.ObjectId,
             ref:'User'
         }
-     ]
+     ]*/
 })
 
 

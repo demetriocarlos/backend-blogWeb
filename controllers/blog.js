@@ -54,6 +54,13 @@ blogRouter.post('/', async (request, response, next) => {
       }
   
 
+      // Busca el usuario en la base de datos usando el id decodificado
+    const user = await User.findById(decodedToken.id);
+
+    if (!user) {
+      return response.status(404).json({ error: 'User not found' });
+    }
+
       
     // Verifica si title y url están presentes en el cuerpo de la solicitud
     if (!title || !url) {
@@ -64,7 +71,7 @@ blogRouter.post('/', async (request, response, next) => {
 
       
         // Obtener el usuario desde el objeto de solicitud
-      const user = request.user;
+      //const user = request.user;
 
 
         // Crea un nuevo blog usando los datos de la solicitud
