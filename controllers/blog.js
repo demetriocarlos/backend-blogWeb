@@ -193,8 +193,6 @@ blogRouter.put('/:id',async (request, response, next) => {
     }
 */
 
-
-
     // Si `blog.userLikes` está definido, asigna su valor a `userLikes`, de lo contrario asigna un array vacío `[]`.
     const userLikes = blog.userLikes || [];
 
@@ -209,11 +207,12 @@ blogRouter.put('/:id',async (request, response, next) => {
   
      // Crea un objeto `updatedBlogData` con los datos actualizados del blog.
     const  updatedBlogData = {
-      title: body.title,
+      /*title: body.title,
       author: body.author,
       url: body.url,
       //likes: body.likes,
       // 
+      */
 
       // Si `hasLiked` es verdadero, disminuye el número de likes en 1.
       // Si `hasLiked` es falso, incrementa el número de likes en 1.
@@ -225,8 +224,6 @@ blogRouter.put('/:id',async (request, response, next) => {
         ? userLikes.filter(uid => uid !== decodedToken.id)
         : userLikes.concat(decodedToken.id),
         //
-
-        
       id:body.id,
       user: user._id,  // Asigna el ID del usuario al campo user
 
@@ -237,7 +234,7 @@ blogRouter.put('/:id',async (request, response, next) => {
     
     // Popula el campo 'user' del blog actualizado para incluir los detalles del usuario
     
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, updatedBlogData, { new: true }).populate('user', { username: 1, name: 1 });
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, updatedBlogData, { new: true }) //.populate('user', { username: 1, name: 1 });
     // Popula el campo 'user' del blog actualizado para incluir los detalles del usuario
     //await updatedBlog.populate('user', { username: 1, name: 1 });
 
