@@ -15,6 +15,20 @@ blogRouter.get('/' ,async (request, response) => {
 })
 
 
+
+blogRouter.get('/:id', async (request, response) => {
+  try{
+    const id = request.params.id
+
+    const blog = await Blog.findById(id).populate('user', {username:1, name:1 ,id:1})
+    response.status(200).json(blog)
+    
+  }catch(error){
+    console.log('Error al optener la informacion del blog', error)
+  }
+})
+
+
 blogRouter.post('/', async (request, response, next) => {
     try {
 
@@ -186,58 +200,25 @@ blogRouter.put('/:id',async (request, response, next) => {
        return response.status(404).json({ error: 'blog no encontrado' });
      }
 
-
-    /* // Verifica si el usuario autenticado es el propietario del blog
-    if (blog.user.toString() !== decodedToken.id) {
-      return response.status(403).json({ error: 'no autorizado para actualizar este blog' });
-    }
-*/
-
-    // Si `blog.userLikes` está definido, asigna su valor a `userLikes`, de lo contrario asigna un array vacío `[]`.
-    const userLikes = blog.userLikes || [];
-
-
-
-     
-    //const userId = decodedToken.id;
-    // Comprueba si el ID del usuario decodificado (decodedToken.id) está en el array `userLikes`.
-    // Devuelve `true` si el usuario ha dado like, `false` en caso contrario.
-    const hasLiked = userLikes.includes(decodedToken.id);
-
   
-     // Crea un objeto `updatedBlogData` con los datos actualizados del blog.
-    const  updatedBlogData = {
-      /*title: body.title,
-      author: body.author,
-      url: body.url,
-      //likes: body.likes,
-      // 
-      */
+    const userId = request.user._id.toString()
+    const userLikes = blog.userLikes.includes(userId);
 
-      // Si `hasLiked` es verdadero, disminuye el número de likes en 1.
-      // Si `hasLiked` es falso, incrementa el número de likes en 1.
-      likes: hasLiked ? blog.likes - 1 : blog.likes + 1,
-      // Actualiza el array `userLikes`.
-      // Si `hasLiked` es verdadero, elimina el ID del usuario del array `userLikes`.
-      // Si `hasLiked` es falso, agrega el ID del usuario al array `userLikes`.
-      userLikes: hasLiked 
-        ? userLikes.filter(uid => uid !== decodedToken.id)
-        : userLikes.concat(decodedToken.id),
-        //
-      id:body.id,
-      user: user._id,  // Asigna el ID del usuario al campo user
-
-
+    if(userLikes){
+      // Si el usuario ya dio like, lo quitamos
        
-    };
 
-    
-    // Popula el campo 'user' del blog actualizado para incluir los detalles del usuario
-    
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, updatedBlogData, { new: true }) //.populate('user', { username: 1, name: 1 });
-    // Popula el campo 'user' del blog actualizado para incluir los detalles del usuario
-    //await updatedBlog.populate('user', { username: 1, name: 1 });
+      blog.userLikes = blog.userLikes.filter(like => like.toString() !== userId.toString())
+      
 
+  }else{
+      // Si el usuario no ha dado like, lo agregamos
+      blog.userLikes.push(userId)
+      
+  }
+
+  const updatedBlog = await blog.save();
+  
 
     response.json(updatedBlog);
 
